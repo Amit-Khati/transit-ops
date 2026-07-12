@@ -1,0 +1,28 @@
+{
+  "summary": {
+    "fuelEfficiency": 8.4,
+    "fleetUtilization": 74.2,
+    "operationalCost": 248500,
+    "vehicleRoi": 18.7
+  },
+  "monthlyRevenue": {
+    "2026-01": 182000,
+    "2026-02": 196500,
+    "2026-03": 214000,
+    "2026-04": 228300,
+    "2026-05": 241200,
+    "2026-06": 256800
+  },
+  "topVehicleCosts": [
+    { "id": "veh-101", "name": "Volvo Truck 101", "cost": 184200 },
+    { "id": "veh-102", "name": "Ford Transit 102", "cost": 152400 },
+    { "id": "veh-103", "name": "Mercedes Sprinter 103", "cost": 141300 },
+    { "id": "veh-104", "name": "Ashok Leyland 104", "cost": 128900 }
+  ],
+  "totals": {
+    "vehicles": 14,
+    "trips": 128,
+    "expenses": 64,
+    "fuelLogs": 48
+  }
+}
