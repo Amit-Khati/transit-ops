@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "regNo": "KA01AB1234",
+    "nameModel": "Tata Ace Gold",
+    "type": "Mini",
+    "capacity": "750 kg",
+    "odometer": "45230",
+    "acquisitionCost": "620000",
+    "status": "Available"
+  },
+  {
+    "id": 2,
+    "regNo": "KA02CD5678",
+    "nameModel": "Eicher Pro 2049",
+    "type": "Truck",
+    "capacity": "5 Ton",
+    "odometer": "88710",
+    "acquisitionCost": "945000",
+    "status": "On Trip"
+  },
+  {
+    "id": 3,
+    "regNo": "KA03EF9012",
+    "nameModel": "Maruti Eeco",
+    "type": "Van",
+    "capacity": "500 kg",
+    "odometer": "31240",
+    "acquisitionCost": "460000",
+    "status": "In Shop"
+  },
+  {
+    "id": 4,
+    "regNo": "KA04GH3456",
+    "nameModel": "Toyota Innova",
+    "type": "Car",
+    "capacity": "7 Seater",
+    "odometer": "62410",
+    "acquisitionCost": "1550000",
+    "status": "Retired"
+  }
+]
