@@ -55,26 +55,36 @@ export async function POST(request: NextRequest) {
       data: { lastLogin: new Date() },
     });
 
-    // Create JWT token
+    // Create JWT token (24h expiry)
     const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "24h" }
     );
 
     // Exclude password from response
     const { password: _, ...userWithoutPassword } = user;
 
-    // Return response with token (you might want to set it as a cookie too)
-    return NextResponse.json(
+    // Create response
+    const response = NextResponse.json(
       {
         message: "Login successful",
         user: userWithoutPassword,
-        token,
       },
       { status: 200 }
     );
+
+    // Set HTTP-only cookie
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Error in login route:", error);
     return NextResponse.json(

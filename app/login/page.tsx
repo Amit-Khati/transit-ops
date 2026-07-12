@@ -45,10 +45,6 @@ export default function LoginPage() {
         throw new Error(errorMessage);
       }
 
-      // Store token in localStorage or cookies
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
       // Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
