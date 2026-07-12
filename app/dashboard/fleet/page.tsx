@@ -440,7 +440,7 @@ export default function FleetPage() {
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
               <div>
                 <CardTitle className="text-white">
-                  {isEditing ? "Edit Vehicle" : "Vehicle Details"}
+                  {selectedVehicle === null ? "Add Vehicle" : isEditing ? "Edit Vehicle" : "Vehicle Details"}
                 </CardTitle>
                 <p className="text-sm text-slate-400">
                   {isEditing
@@ -457,7 +457,7 @@ export default function FleetPage() {
               </Button>
             </CardHeader>
             <CardContent className="pt-6">
-              {isEditing ? (
+              {isEditing || (selectedVehicle === null && !isEditing) ? (
                 <form
                   onSubmit={handleSubmit}
                   className="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -594,7 +594,7 @@ export default function FleetPage() {
                       disabled={isSubmitting}
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
-                      {isSubmitting ? "Saving..." : "Update Vehicle"}
+                      {isSubmitting ? "Saving..." : isEditing ? "Update Vehicle" : "Add Vehicle"}
                     </Button>
                   </div>
                 </form>

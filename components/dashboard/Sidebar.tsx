@@ -125,7 +125,7 @@ export default function Sidebar() {
             variant="ghost"
             onClick={confirmLogout}
             disabled={isLoggingOut}
-            className="w-full justify-start gap-3 text-slate-400 hover:text-red-300 hover:bg-red-950/20"
+            className="w-full justify-start gap-3 text-red-400 hover:text-red-300 hover:bg-red-950/30 bg-red-950/10"
           >
             {isLoggingOut ? "Logging out..." : "Logout"}
           </Button>
