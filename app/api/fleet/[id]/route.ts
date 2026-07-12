@@ -1,31 +1,75 @@
-import { NextResponse } from "next/server"
-import { ensureFleetTable, mapFleetRow, pool } from "../db"
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 type RouteContext = {
-  params: Promise<{ id: string }>
-}
+  params: Promise<{ id: string }>;
+};
 
 type FleetPayload = {
-  regNo?: string
-  nameModel?: string
-  type?: string
-  capacity?: string
-  odometer?: number
-  acquisitionCost?: string
-  status?: string
-}
+  regNo?: string;
+  nameModel?: string;
+  type?: string;
+  capacity?: string;
+  odometer?: number;
+  acquisitionCost?: string;
+  status?: string;
+};
+
+// Helper to map frontend type to Prisma VehicleType
+const mapToVehicleType = (type: string) => {
+  const typeMap: Record<string, string> = {
+    Van: "VAN",
+    Car: "VAN", // Prisma doesn't have Car, map to VAN
+    Truck: "TRUCK",
+    Mini: "VAN", // Prisma doesn't have Mini, map to VAN
+    Pickup: "PICKUP",
+    Bus: "BUS",
+  };
+  return typeMap[type] || "VAN";
+};
+
+// Helper to map frontend status to Prisma VehicleStatus
+const mapToVehicleStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    Available: "AVAILABLE",
+    "On Trip": "ON_TRIP",
+    "In Shop": "IN_SHOP",
+    Retired: "RETIRED",
+  };
+  return statusMap[status] || "AVAILABLE";
+};
+
+// Helper to map Prisma Vehicle to frontend format
+const mapVehicleToFrontend = (vehicle: any) => {
+  const typeMap: Record<string, string> = {
+    VAN: "Van",
+    TRUCK: "Truck",
+    PICKUP: "Pickup",
+    TRAILER: "Trailer",
+    BUS: "Bus",
+  };
+  const statusMap: Record<string, string> = {
+    AVAILABLE: "Available",
+    ON_TRIP: "On Trip",
+    IN_SHOP: "In Shop",
+    RETIRED: "Retired",
+  };
+  return {
+    id: vehicle.id,
+    regNo: vehicle.registrationNo,
+    nameModel: [vehicle.name, vehicle.model].filter(Boolean).join(" / "),
+    type: typeMap[vehicle.type] || vehicle.type,
+    capacity: vehicle.maxLoadCapacity.toString(),
+    odometer: vehicle.odometer.toString(),
+    acquisitionCost: vehicle.acquisitionCost.toString(),
+    status: statusMap[vehicle.status] || vehicle.status,
+  };
+};
 
 export async function PUT(request: Request, context: RouteContext) {
   try {
-    await ensureFleetTable()
-    const { id } = await context.params
-    const vehicleId = Number(id)
-
-    if (Number.isNaN(vehicleId)) {
-      return NextResponse.json({ error: "Invalid vehicle id" }, { status: 400 })
-    }
-
-    const body = (await request.json()) as FleetPayload
+    const { id } = await context.params;
+    const body = (await request.json()) as FleetPayload;
 
     if (
       !body.regNo ||
@@ -36,53 +80,48 @@ export async function PUT(request: Request, context: RouteContext) {
       !body.acquisitionCost ||
       !body.status
     ) {
-      return NextResponse.json({ error: "All vehicle fields are required" }, { status: 400 })
+      return NextResponse.json({ error: "All vehicle fields are required" }, { status: 400 });
     }
 
-    const result = await pool.query(
-      `
-        UPDATE fleet_vehicles
-        SET reg_no = $1, name_model = $2, type = $3, capacity = $4, odometer = $5, acquisition_cost = $6, status = $7, updated_at = NOW()
-        WHERE id = $8
-        RETURNING id, reg_no, name_model, type, capacity, odometer, acquisition_cost, status
-      `,
-      [body.regNo, body.nameModel, body.type, body.capacity, body.odometer, body.acquisitionCost, body.status, vehicleId],
-    )
+    // Split nameModel into name and model
+    const [name, ...modelParts] = body.nameModel.split(" / ");
+    const model = modelParts.join(" / ") || null;
 
-    if (result.rowCount === 0) {
-      return NextResponse.json({ error: "Vehicle not found" }, { status: 404 })
-    }
+    const vehicle = await prisma.vehicle.update({
+      where: { id },
+      data: {
+        registrationNo: body.regNo,
+        name: name,
+        model: model,
+        type: mapToVehicleType(body.type) as any,
+        maxLoadCapacity: parseFloat(body.capacity) || 0,
+        odometer: body.odometer,
+        acquisitionCost: parseFloat(body.acquisitionCost) || 0,
+        status: mapToVehicleStatus(body.status) as any,
+      },
+    });
 
-    return NextResponse.json(mapFleetRow(result.rows[0]))
+    return NextResponse.json(mapVehicleToFrontend(vehicle));
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to update vehicle" },
       { status: 500 },
-    )
+    );
   }
 }
 
 export async function DELETE(_: Request, context: RouteContext) {
   try {
-    await ensureFleetTable()
-    const { id } = await context.params
-    const vehicleId = Number(id)
+    const { id } = await context.params;
+    await prisma.vehicle.delete({
+      where: { id },
+    });
 
-    if (Number.isNaN(vehicleId)) {
-      return NextResponse.json({ error: "Invalid vehicle id" }, { status: 400 })
-    }
-
-    const result = await pool.query("DELETE FROM fleet_vehicles WHERE id = $1 RETURNING id", [vehicleId])
-
-    if (result.rowCount === 0) {
-      return NextResponse.json({ error: "Vehicle not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to delete vehicle" },
       { status: 500 },
-    )
+    );
   }
 }
