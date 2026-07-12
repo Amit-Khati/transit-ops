@@ -6,145 +6,11 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-
-  role      Role
-  isActive  Boolean  @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
-}
-
 enum Role {
   FLEET_MANAGER
-  DRIVER
+  DISPATCHER
   SAFETY_OFFICER
   FINANCIAL_ANALYST
-}
-
-model Vehicle {
-  id               String        @id @default(cuid())
-  registrationNo   String        @unique
-  name             String
-  model            String?
-  type             VehicleType
-
-  maxLoadCapacity  Float
-  odometer         Float
-
-  acquisitionCost  Float
-
-  status           VehicleStatus @default(AVAILABLE)
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  trips            Trip[]
-  maintenanceLogs  Maintenance[]
-  fuelLogs         FuelLog[]
-  expenses         Expense[]
-}
-
-model Driver {
-  id              String        @id @default(cuid())
-
-  name            String
-  licenseNumber   String        @unique
-  licenseCategory String
-  licenseExpiry   DateTime
-
-  contactNumber   String
-
-  safetyScore     Float @default(100)
-
-  status          DriverStatus @default(AVAILABLE)
-
-  trips           Trip[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-
-model Trip {
-  id                String      @id @default(cuid())
-
-  source            String
-  destination       String
-
-  cargoWeight       Float
-  plannedDistance   Float
-
-  actualDistance    Float?
-  fuelConsumed      Float?
-
-  revenue           Float?
-
-  status            TripStatus @default(DRAFT)
-
-  vehicleId         String
-  vehicle           Vehicle @relation(fields: [vehicleId], references: [id])
-
-  driverId          String
-  driver            Driver @relation(fields: [driverId], references: [id])
-
-  fuelLogs          FuelLog[]
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-model Maintenance {
-  id          String @id @default(cuid())
-
-  vehicleId   String
-  vehicle     Vehicle @relation(fields: [vehicleId], references: [id])
-
-  title       String
-  description String?
-
-  cost        Float
-
-  status      MaintenanceStatus @default(OPEN)
-
-  openedAt    DateTime @default(now())
-  closedAt    DateTime?
-}
-
-model FuelLog {
-  id          String @id @default(cuid())
-
-  vehicleId   String
-  vehicle     Vehicle @relation(fields: [vehicleId], references: [id])
-
-  tripId      String?
-  trip        Trip? @relation(fields: [tripId], references: [id])
-
-  liters      Float
-  cost        Float
-
-  date        DateTime @default(now())
-}
-
-model Expense {
-  id          String @id @default(cuid())
-
-  vehicleId   String
-  vehicle     Vehicle @relation(fields: [vehicleId], references: [id])
-
-  type        ExpenseType
-
-  amount      Float
-
-  description String?
-
-  date        DateTime @default(now())
 }
 
 enum VehicleStatus {
@@ -186,4 +52,110 @@ enum ExpenseType {
   MAINTENANCE
   TOLL
   OTHER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          Role     @default(DISPATCHER)
+  isActive      Boolean  @default(true)
+  isVerified    Boolean  @default(false)
+  profileImage  String?
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Vehicle {
+  id                String          @id @default(cuid())
+  registrationNo    String          @unique
+  name              String
+  model             String?
+  type              VehicleType
+  maxLoadCapacity   Float
+  odometer          Float
+  acquisitionCost   Float
+  status            VehicleStatus   @default(AVAILABLE)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  trips             Trip[]
+  maintenance       Maintenance[]
+  fuelLogs          FuelLog[]
+  expenses          Expense[]
+}
+
+model Driver {
+  id                String          @id @default(cuid())
+  name              String
+  licenseNumber     String          @unique
+  licenseCategory   String
+  licenseExpiry     DateTime
+  contactNumber     String
+  safetyScore       Float           @default(100)
+  status            DriverStatus    @default(AVAILABLE)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  trips             Trip[]
+}
+
+model Trip {
+  id                String          @id @default(cuid())
+  source            String
+  destination       String
+  cargoWeight       Float
+  plannedDistance   Float
+  actualDistance    Float?
+  fuelConsumed      Float?
+  revenue           Float?
+  status            TripStatus      @default(DRAFT)
+  vehicleId         String
+  driverId          String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  vehicle           Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  driver            Driver          @relation(fields: [driverId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  fuelLogs          FuelLog[]
+}
+
+model Maintenance {
+  id                String          @id @default(cuid())
+  vehicleId         String
+  title             String
+  description       String?
+  cost              Float
+  status            MaintenanceStatus @default(OPEN)
+  openedAt          DateTime        @default(now())
+  closedAt          DateTime?
+
+  vehicle           Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+}
+
+model FuelLog {
+  id                String          @id @default(cuid())
+  vehicleId         String
+  tripId            String?
+  liters            Float
+  cost              Float
+  date              DateTime        @default(now())
+
+  vehicle           Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  trip              Trip?           @relation(fields: [tripId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+model Expense {
+  id                String          @id @default(cuid())
+  vehicleId         String
+  type              ExpenseType
+  amount            Float
+  description       String?
+  date              DateTime        @default(now())
+
+  vehicle           Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 }
