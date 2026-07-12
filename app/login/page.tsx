@@ -2,19 +2,60 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [remember, setRemember] = useState<boolean | "indeterminate">(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Login submitted:", { email, password, remember })
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        let errorMessage = "Something went wrong";
+        if (typeof data.error === "string") {
+          errorMessage = data.error;
+        } else if (typeof data.error === "object") {
+          errorMessage = Object.values(data.error).flat().join(", ");
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Store token in localStorage or cookies
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect to dashboard
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -85,6 +126,12 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xs text-slate-700 font-bold tracking-wider uppercase">Email Address</Label>
               <Input 
@@ -128,9 +175,10 @@ export default function LoginPage() {
 
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-slate-950 font-bold h-11 rounded-lg transition-all duration-200 transform active:scale-[0.98] shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 mt-2"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-slate-950 font-bold h-11 rounded-lg transition-all duration-200 transform active:scale-[0.98] shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 mt-2 disabled:opacity-50"
             >
-              Sign in
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 

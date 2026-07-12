@@ -2,21 +2,82 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
 export default function SignupPage() {
+  const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [role, setRole] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Signup submitted:", { name, email, password, confirmPassword, role })
+    setError("")
+    setLoading(true)
+
+    // Password confirmation check
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      setLoading(false)
+      return
+    }
+
+    // Convert role to uppercase for backend
+    const roleMap: Record<string, string> = {
+      "fleet_manager": "FLEET_MANAGER",
+      "dispatcher": "DISPATCHER",
+      "safety_officer": "SAFETY_OFFICER",
+      "financial_analyst": "FINANCIAL_ANALYST"
+    }
+
+    const mappedRole = role ? roleMap[role] : "DISPATCHER"
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role: mappedRole
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle both string errors and object field errors
+        let errorMessage = "Something went wrong";
+        if (typeof data.error === "string") {
+          errorMessage = data.error;
+        } else if (typeof data.error === "object") {
+          // Join all field errors into one message
+          errorMessage = Object.values(data.error).flat().join(", ");
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Redirect to login on success
+      router.push("/login");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -87,6 +148,12 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xs text-slate-700 font-bold tracking-wider uppercase">Full Name</Label>
               <Input 
@@ -131,33 +198,52 @@ export default function SignupPage() {
             
             <div className="space-y-2">
               <Label htmlFor="password" className="text-xs text-slate-700 font-bold tracking-wider uppercase">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder="••••••••" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-yellow-500/20 focus-visible:border-orange-500 transition-all duration-200 h-10 px-3.5 rounded-lg font-medium shadow-sm"
-              />
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-yellow-500/20 focus-visible:border-orange-500 transition-all duration-200 h-10 px-3.5 pr-10 rounded-lg font-medium shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-xs text-slate-700 font-bold tracking-wider uppercase">Confirm Password</Label>
-              <Input 
-                id="confirmPassword" 
-                type="password" 
-                placeholder="••••••••" 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-yellow-500/20 focus-visible:border-orange-500 transition-all duration-200 h-10 px-3.5 rounded-lg font-medium shadow-sm"
-              />
+              <div className="relative">
+                <Input 
+                  id="confirmPassword" 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-yellow-500/20 focus-visible:border-orange-500 transition-all duration-200 h-10 px-3.5 pr-10 rounded-lg font-medium shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-slate-950 font-bold h-11 rounded-lg transition-all duration-200 transform active:scale-[0.98] shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 mt-2"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-slate-950 font-bold h-11 rounded-lg transition-all duration-200 transform active:scale-[0.98] shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 mt-2 disabled:opacity-50"
             >
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
           
