@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 import { z } from "zod";
 
 // Define the schema for the request body
@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
       data: { lastLogin: new Date() },
     });
 
-    // Create JWT token (24h expiry)
-    const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
+    // JWT token creation is disabled while working on the project locally.
+    // const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    // const token = jwt.sign(
+    //   { userId: user.id, email: user.email, role: user.role },
+    //   JWT_SECRET,
+    //   { expiresIn: "24h" }
+    // );
 
     // Exclude password from response
     const { password: _, ...userWithoutPassword } = user;
@@ -75,14 +75,14 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // Set HTTP-only cookie
-    response.cookies.set("auth_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: "/",
-    });
+    // HTTP-only auth cookie is disabled while JWT is commented out.
+    // response.cookies.set("auth_token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    //   maxAge: 60 * 60 * 24, // 24 hours
+    //   path: "/",
+    // });
 
     return response;
   } catch (error) {

@@ -7,14 +7,14 @@ export async function POST() {
     { status: 200 }
   );
 
-  // Clear the auth cookie with the same options as when it was set
-  response.cookies.set("auth_token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
+  // JWT auth cookie clearing is disabled while JWT is commented out.
+  // response.cookies.set("auth_token", "", {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   sameSite: "lax",
+  //   maxAge: 0,
+  //   path: "/",
+  // });
 
   return response;
 }

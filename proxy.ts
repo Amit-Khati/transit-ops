@@ -1,12 +1,16 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 export function proxy(request: NextRequest) {
-  const token = request.cookies.get("auth_token")?.value;
-  const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+  // const token = request.cookies.get("auth_token")?.value;
+  // const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
 
+  // JWT auth is disabled while the project is being worked on locally.
+  return NextResponse.next();
+
+  /*
   // If the user is accessing dashboard routes without a token, redirect to login
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
     if (!token) {
@@ -39,6 +43,7 @@ export function proxy(request: NextRequest) {
   }
 
   return NextResponse.next();
+  */
 }
 
 export const config = {

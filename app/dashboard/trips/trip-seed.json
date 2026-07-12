@@ -1,0 +1,62 @@
+[
+  {
+    "id": "trip-seed-004",
+    "source": "Sanand Industrial Area",
+    "destination": "Ahmedabad Hub",
+    "cargoWeight": 820,
+    "plannedDistance": 58,
+    "actualDistance": 61,
+    "fuelConsumed": 18,
+    "revenue": 18500,
+    "status": "DISPATCHED",
+    "vehicleId": "veh-seed-02",
+    "driverId": "drv-seed-02",
+    "createdAt": "2026-07-12T09:15:00.000Z",
+    "updatedAt": "2026-07-12T09:15:00.000Z"
+  },
+  {
+    "id": "trip-seed-003",
+    "source": "Gandhinagar Depot",
+    "destination": "Rajkot Terminal",
+    "cargoWeight": 540,
+    "plannedDistance": 212,
+    "actualDistance": null,
+    "fuelConsumed": null,
+    "revenue": 24600,
+    "status": "DRAFT",
+    "vehicleId": "veh-seed-01",
+    "driverId": "drv-seed-01",
+    "createdAt": "2026-07-12T08:40:00.000Z",
+    "updatedAt": "2026-07-12T08:40:00.000Z"
+  },
+  {
+    "id": "trip-seed-002",
+    "source": "Vadodara Freight Yard",
+    "destination": "Surat Distribution Center",
+    "cargoWeight": 970,
+    "plannedDistance": 152,
+    "actualDistance": 155,
+    "fuelConsumed": 29,
+    "revenue": 32200,
+    "status": "COMPLETED",
+    "vehicleId": "veh-seed-03",
+    "driverId": "drv-seed-03",
+    "createdAt": "2026-07-12T07:05:00.000Z",
+    "updatedAt": "2026-07-12T10:05:00.000Z"
+  },
+  {
+    "id": "trip-seed-001",
+    "source": "Mansa Pickup Point",
+    "destination": "Kalol Depot",
+    "cargoWeight": 300,
+    "plannedDistance": 34,
+    "actualDistance": 34,
+    "fuelConsumed": 10,
+    "revenue": 9800,
+    "status": "CANCELLED",
+    "vehicleId": "veh-seed-04",
+    "driverId": "drv-seed-04",
+    "createdAt": "2026-07-11T18:20:00.000Z",
+    "updatedAt": "2026-07-11T18:45:00.000Z"
+  }
+]
