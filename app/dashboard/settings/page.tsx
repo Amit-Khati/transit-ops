@@ -11,7 +11,7 @@ export default function SettingsPage() {
     { name: "Fleet Manager", dashboard: "✓", fleet: "✓", drivers: "✓", trips: "✓", maintenance: "✓", fuel: "✓", analytics: "✓" },
     { name: "Dispatcher", dashboard: "✓", fleet: "view", drivers: "-", trips: "✓", maintenance: "-", fuel: "-", analytics: "-" },
     { name: "Safety Officer", dashboard: "✓", fleet: "-", drivers: "✓", trips: "-", maintenance: "✓", fuel: "-", analytics: "-" },
-    { name: "Financial Analyst", dashboard: "view", fleet: "-", drivers: "-", trips: "-", maintenance: "-", fuel: "✓", analytics: "✓" },
+    { name: "Financial Analyst", dashboard: "✓", fleet: "-", drivers: "-", trips: "-", maintenance: "-", fuel: "✓", analytics: "✓" },
   ];
 
   return (
@@ -37,7 +37,7 @@ export default function SettingsPage() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-1 bg-slate-800/50 border-purple-500/20">
+        {/* <Card className="lg:col-span-1 bg-slate-800/50 border-purple-500/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-white">ADD USER</CardTitle>
           </CardHeader>
@@ -57,7 +57,7 @@ export default function SettingsPage() {
             </div>
             <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">Save Changes</Button>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="lg:col-span-2 bg-slate-800/50 border-purple-500/20">
           <CardHeader className="pb-2">
